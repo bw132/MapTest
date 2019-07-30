@@ -4,4 +4,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="new_marker">New Marker</string>
+    <string name="gym">Gym</string>
+    <string name="pokestop">PokeStop</string>
+    <string name="marker_name">Marker Name</string>
+    <string name="new_raid">New Raid</string>
 </resources>

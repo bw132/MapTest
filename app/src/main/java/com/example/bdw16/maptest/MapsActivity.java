@@ -1,18 +1,14 @@
 package com.example.bdw16.maptest;
 
 import android.app.Activity;
-import android.content.Context;
-import android.net.Uri;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -22,6 +18,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
 
     private Marker newMarker = null;
+
+    private RaidLocationManager raidManager = new RaidLocationManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +60,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 if (newMarker != null) newMarker.remove();
-                newMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("New Marker").draggable(true));
+                MarkerOptions options = new MarkerOptions()
+                        .position(latLng)
+                        .title("New Marker")
+                        .draggable(true)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                newMarker = mMap.addMarker(options);
             }
         });
 
@@ -70,8 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                new MarkerFragment().show(getSupportFragmentManager(), "marker");
-
+                new NewMarkerFragment().show(getSupportFragmentManager(), "marker");
 
             }
         });
