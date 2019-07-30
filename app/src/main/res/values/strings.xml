@@ -9,4 +9,8 @@
     <string name="pokestop">PokeStop</string>
     <string name="marker_name">Marker Name</string>
     <string name="new_raid">New Raid</string>
+    <string name="Interested">interested</string>
+    <string name="going">Going</string>
+    <string name="there_soon">There Soon</string>
+    <string name="ready">Ready</string>
 </resources>
