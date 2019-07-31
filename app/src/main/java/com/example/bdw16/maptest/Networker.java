@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,6 +18,8 @@ public class Networker {
     private static final int RAID_LOCATION_UPDATE = 3;
     private static final int RAID_LOCATION_REQUEST = 4;
     private static final int USERNAME_UPDATE = 5;
+    private static final int MESSAGE = 6;
+    private static final int MESSAGE_REQUEST = 7;
 
 
     private static MapsActivity activity;
@@ -55,6 +58,15 @@ public class Networker {
                     break;
                 case RAIDER_UPDATE:
                     receiveRaiderUpdate(s);
+                    break;
+                case RAID_LOCATION_UPDATE:
+                    //receiveRaidLocationUpdate(s);
+                    break;
+                case USERNAME_UPDATE:
+                    receiveUsername(s);
+                    break;
+                case MESSAGE:
+                    receiveMessage(s);
                     break;
                 default:
                     break;
@@ -182,6 +194,30 @@ public class Networker {
         }
 
         return username;
+    }
+
+    public static void sendMessage(RaidLocation location, String message) {
+        String data = MESSAGE + N
+                + location.getId() + N
+                + message + N;
+        sendData(data);
+    }
+
+    public static void requestMessage(RaidLocation location) {
+        String data = MESSAGE_REQUEST + N
+                + location.getId() + N;
+    }
+
+    public static void receiveMessage(Scanner data) {
+        int id = data.nextInt();
+        List<Message> messages = activity.getRaidManager().getLocation(id).getMessages();
+        messages.clear();
+        while (true) {
+            String username = data.next();
+            if (username.length() == 0) break;
+            String text = data.next();
+            messages.add(new Message(username, text));
+        }
     }
 
 }

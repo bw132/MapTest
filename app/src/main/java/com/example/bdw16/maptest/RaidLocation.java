@@ -39,6 +39,8 @@ public class RaidLocation {
 
     private LatLng position = null;
 
+    private final List<Message> messages = new ArrayList<>();
+
     public RaidLocation(int id, String title, LatLng position) {
         this.id = id;
         this.title = title;
@@ -137,4 +139,9 @@ public class RaidLocation {
     public int getTime() {
         return time;
     }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
 }
