@@ -9,8 +9,12 @@
     <string name="pokestop">PokeStop</string>
     <string name="marker_name">Marker Name</string>
     <string name="new_raid">New Raid</string>
-    <string name="Interested">interested</string>
     <string name="going">Going</string>
     <string name="there_soon">There Soon</string>
     <string name="ready">Ready</string>
+    <string name="minutes_left">Minutes Left</string>
+    <string name="level">Level</string>
+    <string name="type">Type</string>
+    <string name="interested">Interested</string>
+    <string name="unsubscribed">Unsubscribed</string>
 </resources>

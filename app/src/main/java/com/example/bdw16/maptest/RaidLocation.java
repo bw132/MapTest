@@ -10,12 +10,13 @@ import java.util.List;
 
 public class RaidLocation {
 
-    private static final int STATE_MASK_RAID = 0x10;
+    public static final int STATE_MASK_RAID = 0x10;
 
-    private static final int STATE_READY = 0x1;
-    private static final int STATE_PREPARED = 0x11;
-    private static final int STATE_ACTIVE = 0x12;
-    private static final int STATE_FINISHED = 0x13;
+    public static final int STATE_INITIAL = 0x0;
+    public static final int STATE_READY = 0x1;
+    public static final int STATE_PREPARED = 0x11;
+    public static final int STATE_ACTIVE = 0x12;
+    public static final int STATE_FINISHED = 0x13;
 
     public int RAIDER_INTERESTED = 0;
     public int RAIDER_GOING = 1;
@@ -28,17 +29,30 @@ public class RaidLocation {
     private Marker marker;
 
     public boolean isRaid = false;
+    private int state = STATE_READY;
 
-    public RaidLocation(int id, Marker marker) {
+    private int level = 0;
+    private String type = "";
+    private int time = 0;
+
+    private String title = "";
+
+    private LatLng position = null;
+
+    public RaidLocation(int id, String title, LatLng position) {
         this.id = id;
-        this.marker = marker;
-        setState(STATE_READY);
+        this.title = title;
+        this.position = position;
+        setState(STATE_ACTIVE);//STATE_INITIAL
+    }
 
+    public Marker initialiseMarker(MapsActivity activity) {
+        marker = activity.mMap.addMarker(new MarkerOptions()
+                .draggable(false)
+                .title(title)
+                .position(position));
         marker.setTag(this);
-//        marker = new MarkerOptions().position(latLng)
-//                .title(name)
-//                .draggable(false)
-//                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        return marker;
     }
 
     public void prepareRaid() {
@@ -57,28 +71,70 @@ public class RaidLocation {
     public void setState(int state) {
         switch (state) {
             case STATE_READY:
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                setMarkerColor(BitmapDescriptorFactory.HUE_GREEN);
                 break;
             case STATE_PREPARED:
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                setMarkerColor(BitmapDescriptorFactory.HUE_GREEN);
                 break;
             case STATE_ACTIVE:
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                setMarkerColor(BitmapDescriptorFactory.HUE_RED);
                 break;
             case STATE_FINISHED:
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                setMarkerColor(BitmapDescriptorFactory.HUE_VIOLET);
                 break;
         }
         isRaid = (state & STATE_MASK_RAID) == 0;
+        this.state = state;
 
+    }
+
+    public int getState() {
+        return state;
     }
 
     public int[] getRaiders() {
         return raiders;
     }
 
+    public void setRaiders(int[] raiders) {
+        for (int r=0; r<raiders.length; r++) this.raiders[r] = raiders[r];
+    }
+
     public void clearRaiders() {
         for (int r : raiders) r = 0;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setRaidInfo(int time, int level, String type) {
+        this.level = level;
+        this.type = type;
+        this.time = time;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public LatLng getPosition() {
+        return position;
+    }
+
+    public void setMarkerColor(float color) {
+        if (marker != null) marker.setIcon(BitmapDescriptorFactory.defaultMarker(color));
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getTime() {
+        return time;
+    }
 }
