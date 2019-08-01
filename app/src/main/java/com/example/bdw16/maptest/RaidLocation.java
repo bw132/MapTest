@@ -18,10 +18,11 @@ public class RaidLocation {
     public static final int STATE_ACTIVE = 0x12;
     public static final int STATE_FINISHED = 0x13;
 
-    public int RAIDER_INTERESTED = 0;
-    public int RAIDER_GOING = 1;
-    public int RAIDER_THERE_SOON = 2;
-    public int RAIDER_READY = 3;
+    public static final int RAIDER_UNSUBSCRIBED = -1;
+    public static final int RAIDER_INTERESTED = 0;
+    public static final int RAIDER_GOING = 1;
+    public static final int RAIDER_THERE_SOON = 2;
+    public static final int RAIDER_READY = 3;
 
     private int[] raiders = new int[4];
 

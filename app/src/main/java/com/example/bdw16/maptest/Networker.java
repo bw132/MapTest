@@ -47,6 +47,10 @@ public class Networker {
         }
     }
 
+    private static void requestData(String request) {
+        connector.request(getUserCode() + N + request);
+    }
+
     public static void receiveData(Scanner s) {
 
         while(s.hasNext()) {
@@ -60,7 +64,7 @@ public class Networker {
                     receiveRaiderUpdate(s);
                     break;
                 case RAID_LOCATION_UPDATE:
-                    //receiveRaidLocationUpdate(s);
+                    receiveRaidUpdate(s);
                     break;
                 case USERNAME_UPDATE:
                     receiveUsername(s);
@@ -143,7 +147,7 @@ public class Networker {
 
         String data = dataBasic + extraData;
 
-        sendData(data);
+        requestData(data);
     }
 
     public static void receiveRaiderUpdate(Scanner s) {
@@ -169,10 +173,10 @@ public class Networker {
         return userCode;
     }
 
-    public static void sendUsername(String name) {
+    public static void requestUsername(String name) {
         String data = USERNAME_UPDATE + N
                 + name + N;
-        sendData(data);
+        requestData(data);
     }
 
     public static void receiveUsername(Scanner s) {
@@ -206,6 +210,7 @@ public class Networker {
     public static void requestMessage(RaidLocation location) {
         String data = MESSAGE_REQUEST + N
                 + location.getId() + N;
+        requestData(data);
     }
 
     public static void receiveMessage(Scanner data) {

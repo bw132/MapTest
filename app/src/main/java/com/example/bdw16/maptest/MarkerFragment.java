@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 
 public class MarkerFragment extends DialogFragment {
 
@@ -56,10 +57,42 @@ public class MarkerFragment extends DialogFragment {
             getDialog().findViewById(R.id.constraintLayout2).setVisibility(ConstraintLayout.VISIBLE);
         }
 
+        RadioGroup radioGroup = (RadioGroup) getDialog().findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                int state;
+                switch(checkedId) {
+                    case R.id.radioButton:
+                        state = RaidLocation.RAIDER_INTERESTED;
+                        break;
+                    case R.id.radioButton2:
+                        state = RaidLocation.RAIDER_GOING;
+                        break;
+                    case R.id.radioButton3:
+                        state = RaidLocation.RAIDER_THERE_SOON;
+                        break;
+                    case R.id.radioButton4:
+                        state = RaidLocation.RAIDER_READY;
+                        break;
+                    default:
+                        state = RaidLocation.RAIDER_UNSUBSCRIBED;
+                        break;
+                }
+                Networker.sendRaiderUpdate(getRaidLocation(), state);
+            }
+        });
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
+
+    public void chooseRaiderState(View view) {
+
+    }
+
 }

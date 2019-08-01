@@ -19,8 +19,6 @@ public class SocketConnector {
         this.host = host;
         this.port = port;
 
-        runReceivePoll();
-
     }
 
     private boolean connect() {
@@ -63,31 +61,33 @@ public class SocketConnector {
 
     }
 
-
-    public void runReceivePoll() {
+    public void request(final String request) {
 
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                receive();
+
+                Socket socket;
+
                 try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    socket = new Socket(host, port);
+                } catch (UnknownHostException e) {
+                    System.out.println("Couldn't establish socket connection");
+                    return;
+                } catch (IOException e) {
+                    System.out.println("IO exception on attempting to connect socket");
+                    return;
                 }
-            }
-        });
-        t.start();
 
-    }
-
-    private void receive() {
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                if (socket == null || socket.isClosed()) if (!connect()) return;
+                try {
+                    OutputStream os;
+                    os = socket.getOutputStream();
+                    os.write(request.getBytes());
+                    //os.close();
+                } catch (IOException e) {
+                    System.out.println("IO exception trying to write to socket");
+                    return;
+                }
 
                 try {
                     InputStream is;
