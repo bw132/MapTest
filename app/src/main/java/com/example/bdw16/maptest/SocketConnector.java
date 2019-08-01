@@ -95,7 +95,7 @@ public class SocketConnector {
 
                     Scanner s = new Scanner(is).useDelimiter("\n");
 
-                    Networker.receiveData(s);
+                    Networker.receiveDataAsync(s);
 
                     is.close();
                 } catch (IOException e) {

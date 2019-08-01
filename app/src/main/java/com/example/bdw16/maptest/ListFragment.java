@@ -32,7 +32,7 @@ public class ListFragment extends DialogFragment {
 
         builder.setTitle("Active Raids");
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
             }

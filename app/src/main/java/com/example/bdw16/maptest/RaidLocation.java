@@ -46,7 +46,7 @@ public class RaidLocation {
         this.id = id;
         this.title = title;
         this.position = position;
-        setState(STATE_ACTIVE);//STATE_INITIAL
+        setState(STATE_READY);//STATE_INITIAL
     }
 
     public Marker initialiseMarker(MapsActivity activity) {

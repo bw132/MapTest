@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,8 @@ public class Networker {
     private static final int REQUEST_RAID_LOCATION = 0x02;
 
     private static final int RAID_LOCATION_UPDATE = 0x10;
+    private static final int SEND_RAID_LOCATION_UPDATE = 0x11;
+    private static final int REQUEST_RAID_LOCATION_UPDATE = 0x12;
 
     private static final int RAIDER_UPDATE = 0x20;
     private static final int SEND_RAIDER_UPDATE = 0x21;
@@ -34,9 +37,10 @@ public class Networker {
 
     private static MapsActivity activity;
 
+
     private static final String N = "\n";
 
-    private static boolean useLocal = false;
+    private static boolean useLocal = true;
 
     private static SocketConnector connector;
 
@@ -59,6 +63,22 @@ public class Networker {
 
     private static void requestData(String request) {
         connector.request(getUserCode() + N + request);
+    }
+
+    public static void receiveDataAsync(Scanner s) {
+        String d = "";
+        while (s.hasNext()) {
+            d += s.next() + N;
+        }
+
+        final String data = d;
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiveLocalData(data);
+            }
+        });
     }
 
     public static void receiveData(Scanner s) {
@@ -87,9 +107,17 @@ public class Networker {
             }
         }
 
+        callUpdates();
+
+    }
+
+    public static void callUpdates() {
+        MarkerFragment.updateInstance();
+        ChatFragment.updateInstance();
     }
 
     public static void receiveLocalData(final String data) {
+        System.out.println("DATA:"+data.replace('\n', '_'));
         InputStream is = new InputStream() {
             int i = 0;
             char[] c = data.toCharArray();
@@ -117,56 +145,86 @@ public class Networker {
 
     }
 
-
+    public static void requestRaidLocation() {
+        String data = REQUEST_RAID_LOCATION + N;
+        requestData(data);//
+    }
 
     public static void receiveRaidLocation(Scanner s) {
-        int id = s.nextInt();
-        String name = s.next();
-        double lat = s.nextDouble();
-        double lng = s.nextDouble();
 
-        if (activity.getRaidManager().hasLocation(id)) return;
+        while (s.hasNext()) {
 
-        RaidLocation location = new RaidLocation(id, name, new LatLng(lat, lng));
-        activity.getRaidManager().addLocation(location);
-        location.initialiseMarker(activity);
+            int id = s.nextInt();
+            String name = s.next();
+            double lat = s.nextDouble();
+            double lng = s.nextDouble();
+
+            if (activity.getRaidManager().hasLocation(id)) continue;
+
+            RaidLocation location = new RaidLocation(id, name, new LatLng(lat, lng));
+            activity.getRaidManager().addLocation(location);
+            location.initialiseMarker(activity);
+
+        }
+
+    }
+
+    public static void sendRaidUpdate(RaidLocation location, int state, String time, String level, String pokemon) {
+        String data = SEND_RAID_LOCATION_UPDATE + N
+                + location.getId() + N
+                + state + N
+                + time + N
+                + level + N
+                + pokemon + N;
+        requestData(data);
+    }
+
+    public static void requestRaidUpdate() {
+        String data = REQUEST_RAID_LOCATION_UPDATE + N;
+        requestData(data);
     }
 
     public static void receiveRaidUpdate(Scanner s) {
-        int id = s.nextInt();
-        int state = s.nextInt();
-        RaidLocation location = activity.getRaidManager().getLocation(id);
-        location.setState(state);
-        if (location.isRaid) {
-            int time = s.nextInt();
-            int level = s.nextInt();
-            String type = s.nextLine();
-            location.setRaidInfo(time, level, type);
+
+        boolean fail = false;
+
+        while (s.hasNext()) {
+            int id = s.nextInt();
+            int state = s.nextInt();
+
+            RaidLocation location = activity.getRaidManager().getLocation(id);
+            if (location == null) continue;
+            location.setState(state);
+            if (location.isRaid) {
+                int time = s.nextInt();
+                int level = s.nextInt();
+                String type = s.next();
+                location.setRaidInfo(time, level, type);
+            }
+
         }
+
     }
 
     public static void sendRaiderUpdate(RaidLocation location, int raiderState) {
-        String dataBasic = SEND_RAIDER_UPDATE + N
+        String data = SEND_RAIDER_UPDATE + N
                 + location.getId() + N
                 + raiderState + N;
-
-        String extraData = "";
-        if (location.isRaid) {
-            extraData = location.getTime() + N
-                    + location.getLevel() + N
-                    + location.getType() + N;
-        }
-
-        String data = dataBasic + extraData;
 
         requestData(data);
     }
 
     public static void receiveRaiderUpdate(Scanner s) {
-        int id = s.nextInt();
-        int[] values = new int[4];
-        for (int v=0;v<values.length;v++) values[v] = s.nextInt();
-        activity.getRaidManager().getLocation(id).setRaiders(values);
+
+        while (true) {
+            int id = s.nextInt();
+            int[] values = new int[4];
+            for (int v=0;v<values.length;v++) values[v] = s.nextInt();
+            RaidLocation location = activity.getRaidManager().getLocation(id);
+            if (location == null) continue;
+            location.setRaiders(values);
+        }
+
     }
 
     public static long getUserCode() {

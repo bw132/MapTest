@@ -12,11 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 public class MarkerFragment extends DialogFragment {
+
+    public static MarkerFragment instance;
 
     @NonNull
     @Override
@@ -28,14 +32,9 @@ public class MarkerFragment extends DialogFragment {
 
         builder.setTitle(getRaidLocation().getMarker().getTitle());
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
             }
         });
 
@@ -48,10 +47,8 @@ public class MarkerFragment extends DialogFragment {
         return location;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (getRaidLocation().isRaid) {
+    private void updateRaidState() {
+        if (!getRaidLocation().isRaid) {
             getDialog().findViewById(R.id.constraintLayout).setVisibility(ConstraintLayout.VISIBLE);
             getDialog().findViewById(R.id.constraintLayout2).setVisibility(ConstraintLayout.GONE);
         }
@@ -59,6 +56,11 @@ public class MarkerFragment extends DialogFragment {
             getDialog().findViewById(R.id.constraintLayout).setVisibility(ConstraintLayout.GONE);
             getDialog().findViewById(R.id.constraintLayout2).setVisibility(ConstraintLayout.VISIBLE);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
         RadioGroup radioGroup = (RadioGroup) getDialog().findViewById(R.id.radioGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
@@ -89,9 +91,27 @@ public class MarkerFragment extends DialogFragment {
 
         updateInfo();
 
-        String[] values = new String[] {"until raid starts", "until raid is finished"};
+        String[] values = new String[] {"minutes until raid starts", "minutes until raid is finished"};
         Spinner timeSpinner = getDialog().findViewById(R.id.spinner3);
-        timeSpinner.setAdapter(new ArrayAdapter<String>(getContext(), R.layout.adapter_text_view, values));
+        timeSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.adapter_text_view, values));
+
+        String[] levels = new String[] {"Unknown", "1", "2", "3", "4", "5"};
+        Spinner levelSpinner = getDialog().findViewById(R.id.spinner);
+        levelSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.adapter_text_view_2, levels));
+
+        String[] types = new String[] {"Unknown", "TempPokemon"};
+        Spinner typeSpinner = getDialog().findViewById(R.id.spinner2);
+        typeSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.adapter_text_view_3, types));
+
+        getDialog().findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newRaid(v);
+            }
+        });
+
+
+        instance = this;
 
     }
 
@@ -104,6 +124,52 @@ public class MarkerFragment extends DialogFragment {
         ((TextView)getDialog().findViewById(R.id.textView3)).setText("Time: " + getRaidLocation().getTimeString());
         ((TextView)getDialog().findViewById(R.id.textView4)).setText("Level: " + getRaidLocation().getLevel());
         ((TextView)getDialog().findViewById(R.id.textView5)).setText("Type: " + getRaidLocation().getType());
+    }
+
+    public void newRaid(View view) {
+        String timeType = ((Spinner)getDialog().findViewById(R.id.spinner3)).getSelectedItem().toString();
+        String level = ((Spinner)getDialog().findViewById(R.id.spinner)).getSelectedItem().toString();
+        String type = ((Spinner)getDialog().findViewById(R.id.spinner2)).getSelectedItem().toString();
+        String time = ((EditText)getDialog().findViewById(R.id.editText2)).getText().toString();
+
+        if (level.equals("Unknown")) level = "0";
+
+        int state = timeType.endsWith("finished") ? RaidLocation.STATE_ACTIVE : RaidLocation.STATE_PREPARED;
+
+        Networker.sendRaidUpdate(getRaidLocation(), state, time, level, type);
+
+    }
+
+    public static void updateInstance() {
+        if (instance.isVisible()) {
+            instance.updateRaidLocation();
+            instance.updateRaiderState();
+        }
+    }
+
+    public void updateRaidLocation() {
+        updateRaidState();
+        updateInfo();
+    }
+
+    public void updateRaiderState() {
+        int[] raiders = getRaidLocation().getRaiders();
+
+        String interested = "Interested";
+        String going = "Going";
+        String thereSoon = "There Soon";
+        String ready = "Ready";
+
+        if (raiders[RaidLocation.RAIDER_INTERESTED] > 0) interested += raiders[RaidLocation.RAIDER_INTERESTED];
+        if (raiders[RaidLocation.RAIDER_GOING] > 0) going += raiders[RaidLocation.RAIDER_GOING];
+        if (raiders[RaidLocation.RAIDER_THERE_SOON] > 0) thereSoon += raiders[RaidLocation.RAIDER_THERE_SOON];
+        if (raiders[RaidLocation.RAIDER_READY] > 0) ready += raiders[RaidLocation.RAIDER_READY];
+
+        ((RadioButton)getDialog().findViewById(R.id.radioButton)).setText(interested);
+        ((RadioButton)getDialog().findViewById(R.id.radioButton2)).setText(going);
+        ((RadioButton)getDialog().findViewById(R.id.radioButton3)).setText(thereSoon);
+        ((RadioButton)getDialog().findViewById(R.id.radioButton4)).setText(ready);
+
     }
 
 }

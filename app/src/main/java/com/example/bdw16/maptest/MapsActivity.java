@@ -93,7 +93,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        System.out.println("ENABLED:"+googleMap.isMyLocationEnabled());
+        //System.out.println("ENABLED:"+googleMap.isMyLocationEnabled());
+
+        Networker.requestRaidLocation();
+        Networker.requestRaidUpdate();
+
+        final MapsActivity activity = this;
+
+        Thread poll = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Networker.requestRaidUpdate();
+                        Networker.requestRaidLocation();
+                        RaidLocation location = null;
+                        try {
+                            location = (RaidLocation) activity.currentMarker.getTag();
+                        }
+                        catch (Exception e) {}
+                        if (location == null) Networker.requestMessage(location);
+                    }
+                });
+            }
+        });
+        poll.start();
+
     }
 
     public RaidLocationManager getRaidManager() {
