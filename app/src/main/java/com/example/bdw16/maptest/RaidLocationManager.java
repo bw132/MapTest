@@ -33,4 +33,14 @@ public class RaidLocationManager {
         return getLocation(id) != null;
     }
 
+    public List<RaidLocation> getActiveLocations() {
+        List<RaidLocation> list = new ArrayList<>();
+        for(int i = 0; i < locations.size(); i++) {
+            int key = locations.keyAt(i);
+            RaidLocation l = locations.get(key);
+            if (l.isRaid) list.add(l);
+        }
+        return list;
+    }
+
 }

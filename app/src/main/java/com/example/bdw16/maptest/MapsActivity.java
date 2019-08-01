@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -97,6 +98,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public RaidLocationManager getRaidManager() {
         return raidManager;
+    }
+
+    public void showListView(View view) {
+        new ListFragment().show(getSupportFragmentManager(), "list");
     }
 
 }

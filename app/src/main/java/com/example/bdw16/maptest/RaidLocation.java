@@ -86,7 +86,7 @@ public class RaidLocation {
                 setMarkerColor(BitmapDescriptorFactory.HUE_VIOLET);
                 break;
         }
-        isRaid = (state & STATE_MASK_RAID) == 0;
+        isRaid = (state & STATE_MASK_RAID) != 0;
         this.state = state;
 
     }
@@ -143,6 +143,28 @@ public class RaidLocation {
 
     public List<Message> getMessages() {
         return messages;
+    }
+
+    public String getStateName() {
+        switch (state) {
+            case STATE_READY:
+                return "Ready";
+            case STATE_PREPARED:
+                return "Prepared";
+            case STATE_ACTIVE:
+                return "Active";
+            case STATE_FINISHED:
+                return "Finished";
+        }
+        return "-";
+    }
+
+    public int getTotalInterested() {
+        return raiders[0];
+    }
+
+    public int getTotalGoing() {
+        return raiders[1] + raiders[2] + raiders[3];
     }
 
 }

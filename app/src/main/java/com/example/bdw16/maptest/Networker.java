@@ -26,7 +26,7 @@ public class Networker {
 
     private static final String N = "\n";
 
-    private static boolean useLocal = false;
+    private static boolean useLocal = true;
 
     private static SocketConnector connector;
 
@@ -92,7 +92,7 @@ public class Networker {
                 return -1;
             }
         };
-        receiveData(new Scanner(is));
+        receiveData(new Scanner(is).useDelimiter(N));
     }
 
     public static void sendRaidLocation(String title, LatLng position) {
@@ -153,7 +153,7 @@ public class Networker {
     public static void receiveRaiderUpdate(Scanner s) {
         int id = s.nextInt();
         int[] values = new int[4];
-        for (int v : values) v = s.nextInt();
+        for (int v=0;v<values.length;v++) values[v] = s.nextInt();
         activity.getRaidManager().getLocation(id).setRaiders(values);
     }
 
@@ -173,7 +173,7 @@ public class Networker {
         return userCode;
     }
 
-    public static void requestUsername(String name) {
+    public static void sendUsername(String name) {
         String data = USERNAME_UPDATE + N
                 + name + N;
         requestData(data);
@@ -204,7 +204,7 @@ public class Networker {
         String data = MESSAGE + N
                 + location.getId() + N
                 + message + N;
-        sendData(data);
+        requestData(data);
     }
 
     public static void requestMessage(RaidLocation location) {

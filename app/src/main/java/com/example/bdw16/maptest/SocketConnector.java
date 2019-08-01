@@ -93,7 +93,7 @@ public class SocketConnector {
                     InputStream is;
                     is = socket.getInputStream();
 
-                    Scanner s = new Scanner(is);
+                    Scanner s = new Scanner(is).useDelimiter("\n");
 
                     Networker.receiveData(s);
 

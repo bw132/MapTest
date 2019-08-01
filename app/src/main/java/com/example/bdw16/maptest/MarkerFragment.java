@@ -95,4 +95,8 @@ public class MarkerFragment extends DialogFragment {
 
     }
 
+    public void updateInfo() {
+
+    }
+
 }

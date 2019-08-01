@@ -17,4 +17,6 @@
     <string name="type">Type</string>
     <string name="interested">Interested</string>
     <string name="unsubscribed">Unsubscribed</string>
+    <string name="list_view">List View</string>
+    <string name="active_raids">Active Raids</string>
 </resources>
