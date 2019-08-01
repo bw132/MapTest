@@ -11,7 +11,10 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class MarkerFragment extends DialogFragment {
 
@@ -84,6 +87,12 @@ public class MarkerFragment extends DialogFragment {
             }
         });
 
+        updateInfo();
+
+        String[] values = new String[] {"until raid starts", "until raid is finished"};
+        Spinner timeSpinner = getDialog().findViewById(R.id.spinner3);
+        timeSpinner.setAdapter(new ArrayAdapter<String>(getContext(), R.layout.adapter_text_view, values));
+
     }
 
     @Override
@@ -91,12 +100,10 @@ public class MarkerFragment extends DialogFragment {
         super.onDestroy();
     }
 
-    public void chooseRaiderState(View view) {
-
-    }
-
     public void updateInfo() {
-
+        ((TextView)getDialog().findViewById(R.id.textView3)).setText("Time: " + getRaidLocation().getTimeString());
+        ((TextView)getDialog().findViewById(R.id.textView4)).setText("Level: " + getRaidLocation().getLevel());
+        ((TextView)getDialog().findViewById(R.id.textView5)).setText("Type: " + getRaidLocation().getType());
     }
 
 }

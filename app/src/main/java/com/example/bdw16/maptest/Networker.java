@@ -13,20 +13,30 @@ import java.util.Scanner;
 
 public class Networker {
 
-    private static final int RAID_LOCATION = 1;
-    private static final int RAIDER_UPDATE = 2;
-    private static final int RAID_LOCATION_UPDATE = 3;
-    private static final int RAID_LOCATION_REQUEST = 4;
-    private static final int USERNAME_UPDATE = 5;
-    private static final int MESSAGE = 6;
-    private static final int MESSAGE_REQUEST = 7;
+    private static final int RAID_LOCATION = 0x00;
+    private static final int SEND_RAID_LOCATION = 0x01;
+    private static final int REQUEST_RAID_LOCATION = 0x02;
+
+    private static final int RAID_LOCATION_UPDATE = 0x10;
+
+    private static final int RAIDER_UPDATE = 0x20;
+    private static final int SEND_RAIDER_UPDATE = 0x21;
+    private static final int REQUEST_RAIDER_UPDATE = 0x22;
+
+
+    private static final int USERNAME_UPDATE = 0x30;
+    private static final int REQUEST_USERNAME_UPDATE = 0x32;
+
+    private static final int MESSAGE = 0x40;
+    private static final int SEND_MESSAGE = 0x40;
+    private static final int REQUEST_MESSAGE = 0x42;
 
 
     private static MapsActivity activity;
 
     private static final String N = "\n";
 
-    private static boolean useLocal = true;
+    private static boolean useLocal = false;
 
     private static SocketConnector connector;
 
@@ -97,15 +107,17 @@ public class Networker {
 
     public static void sendRaidLocation(String title, LatLng position) {
 
-        String data = RAID_LOCATION + N
+        String data = SEND_RAID_LOCATION + N
                 + (int)System.currentTimeMillis() + N
                 + title + N
                 + position.latitude + N
                 + position.longitude + N;
 
-        sendData(data);
+        requestData(data);
 
     }
+
+
 
     public static void receiveRaidLocation(Scanner s) {
         int id = s.nextInt();
@@ -134,7 +146,7 @@ public class Networker {
     }
 
     public static void sendRaiderUpdate(RaidLocation location, int raiderState) {
-        String dataBasic = RAIDER_UPDATE + N
+        String dataBasic = SEND_RAIDER_UPDATE + N
                 + location.getId() + N
                 + raiderState + N;
 
@@ -174,7 +186,7 @@ public class Networker {
     }
 
     public static void sendUsername(String name) {
-        String data = USERNAME_UPDATE + N
+        String data = REQUEST_USERNAME_UPDATE + N
                 + name + N;
         requestData(data);
     }
@@ -201,14 +213,14 @@ public class Networker {
     }
 
     public static void sendMessage(RaidLocation location, String message) {
-        String data = MESSAGE + N
+        String data = SEND_MESSAGE + N
                 + location.getId() + N
                 + message + N;
         requestData(data);
     }
 
     public static void requestMessage(RaidLocation location) {
-        String data = MESSAGE_REQUEST + N
+        String data = REQUEST_MESSAGE + N
                 + location.getId() + N;
         requestData(data);
     }

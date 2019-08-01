@@ -167,4 +167,10 @@ public class RaidLocation {
         return raiders[1] + raiders[2] + raiders[3];
     }
 
+    public String getTimeString() {
+        if (state == STATE_PREPARED) return time + " minutes until raid";
+        else if (state == STATE_ACTIVE) return time + " minutes left for raid";
+        else return "Raid finished";
+    }
+
 }
