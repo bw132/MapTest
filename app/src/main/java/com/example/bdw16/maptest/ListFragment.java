@@ -22,6 +22,8 @@ public class ListFragment extends DialogFragment {
 
     MapsActivity activity;
 
+    ListFragment instance;
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class ListFragment extends DialogFragment {
 
     public void createList() {
         LinearLayout layout = getDialog().findViewById(R.id.linearLayout);
+        layout.removeAllViews();
         for (RaidLocation location : activity.getRaidManager().getActiveLocations()) {
             ViewGroup itemOuter = (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.list_item, null);
             final ViewGroup item = (ViewGroup) itemOuter.getChildAt(0);
@@ -76,6 +79,8 @@ public class ListFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         createList();
+
+        instance = this;
     }
 
     @Override

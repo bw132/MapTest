@@ -28,10 +28,11 @@ public class Networker {
 
 
     private static final int USERNAME_UPDATE = 0x30;
+    private static final int SEND_USERNAME_UPDATE = 0x31;
     private static final int REQUEST_USERNAME_UPDATE = 0x32;
 
     private static final int MESSAGE = 0x40;
-    private static final int SEND_MESSAGE = 0x40;
+    private static final int SEND_MESSAGE = 0x41;
     private static final int REQUEST_MESSAGE = 0x42;
 
 
@@ -40,12 +41,12 @@ public class Networker {
 
     private static final String N = "\n";
 
-    private static boolean useLocal = true;
+    private static boolean useLocal = false;
 
     private static SocketConnector connector;
 
     private static Long userCode = null;
-    private static String username = null;
+     static String username = null;
 
     public static void registerMapsActivity(MapsActivity activity) {
         Networker.activity = activity;
@@ -53,6 +54,7 @@ public class Networker {
     }
 
     private static void sendData(String data) {
+        System.out.println("SEND:"+data.replace("\n", "_"));
         if (useLocal) {
             receiveLocalData(data);
         }
@@ -62,6 +64,7 @@ public class Networker {
     }
 
     private static void requestData(String request) {
+        System.out.println("REQU:"+request.replace("\n", "_"));
         connector.request(getUserCode() + N + request);
     }
 
@@ -141,7 +144,8 @@ public class Networker {
                 + position.latitude + N
                 + position.longitude + N;
 
-        requestData(data);
+        sendData(data);
+        requestRaidLocation();
 
     }
 
@@ -176,7 +180,8 @@ public class Networker {
                 + time + N
                 + level + N
                 + pokemon + N;
-        requestData(data);
+        sendData(data);
+        requestRaidUpdate();
     }
 
     public static void requestRaidUpdate() {
@@ -193,12 +198,15 @@ public class Networker {
             int state = s.nextInt();
 
             RaidLocation location = activity.getRaidManager().getLocation(id);
+
+
+            int time = s.nextInt();
+            int level = s.nextInt();
+            String type = s.next();
+
             if (location == null) continue;
             location.setState(state);
             if (location.isRaid) {
-                int time = s.nextInt();
-                int level = s.nextInt();
-                String type = s.next();
                 location.setRaidInfo(time, level, type);
             }
 
@@ -211,12 +219,19 @@ public class Networker {
                 + location.getId() + N
                 + raiderState + N;
 
+        sendData(data);
+        requestRaiderUpdate();
+    }
+
+    public static void requestRaiderUpdate() {
+        String data = REQUEST_RAIDER_UPDATE + N;
+
         requestData(data);
     }
 
     public static void receiveRaiderUpdate(Scanner s) {
 
-        while (true) {
+        while (s.hasNext()) {
             int id = s.nextInt();
             int[] values = new int[4];
             for (int v=0;v<values.length;v++) values[v] = s.nextInt();
@@ -244,8 +259,13 @@ public class Networker {
     }
 
     public static void sendUsername(String name) {
-        String data = REQUEST_USERNAME_UPDATE + N
+        String data = SEND_USERNAME_UPDATE + N
                 + name + N;
+        sendData(data);
+    }
+
+    public static void requestUsername() {
+        String data = REQUEST_USERNAME_UPDATE + N;
         requestData(data);
     }
 
@@ -274,7 +294,8 @@ public class Networker {
         String data = SEND_MESSAGE + N
                 + location.getId() + N
                 + message + N;
-        requestData(data);
+        sendData(data);
+        requestMessage(location);
     }
 
     public static void requestMessage(RaidLocation location) {
@@ -283,14 +304,19 @@ public class Networker {
         requestData(data);
     }
 
-    public static void receiveMessage(Scanner data) {
-        int id = data.nextInt();
+    public static void receiveMessage(Scanner s) {
+
+        int id = s.nextInt();
         List<Message> messages = activity.getRaidManager().getLocation(id).getMessages();
         messages.clear();
-        while (true) {
-            String username = data.next();
-            if (username.length() == 0) break;
-            String text = data.next();
+
+
+        while (s.hasNext()) {
+
+
+            String username = s.next();
+            String text = s.next();
+            //if (username.length() == 0) break;
             messages.add(new Message(username, text));
         }
     }

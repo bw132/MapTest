@@ -90,8 +90,10 @@ public class MarkerFragment extends DialogFragment {
         });
 
         updateInfo();
+        updateRaidState();
+        updateRaiderState();
 
-        String[] values = new String[] {"minutes until raid starts", "minutes until raid is finished"};
+        String[] values = new String[] {"minutes until start", "minutes until end"};
         Spinner timeSpinner = getDialog().findViewById(R.id.spinner3);
         timeSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.adapter_text_view, values));
 
@@ -107,6 +109,13 @@ public class MarkerFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 newRaid(v);
+            }
+        });
+
+        getDialog().findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ChatFragment().show(getActivity().getSupportFragmentManager(), "chat");
             }
         });
 
@@ -133,15 +142,16 @@ public class MarkerFragment extends DialogFragment {
         String time = ((EditText)getDialog().findViewById(R.id.editText2)).getText().toString();
 
         if (level.equals("Unknown")) level = "0";
+        if (time.equals("") || Integer.parseInt(time) > 60) time = "60";
 
-        int state = timeType.endsWith("finished") ? RaidLocation.STATE_ACTIVE : RaidLocation.STATE_PREPARED;
+        int state = timeType.endsWith("end") ? RaidLocation.STATE_ACTIVE : RaidLocation.STATE_PREPARED;
 
         Networker.sendRaidUpdate(getRaidLocation(), state, time, level, type);
 
     }
 
     public static void updateInstance() {
-        if (instance.isVisible()) {
+        if (instance != null && instance.getActivity() != null && instance.getActivity().getSupportFragmentManager().findFragmentByTag("marker") != null) {
             instance.updateRaidLocation();
             instance.updateRaiderState();
         }
@@ -160,10 +170,10 @@ public class MarkerFragment extends DialogFragment {
         String thereSoon = "There Soon";
         String ready = "Ready";
 
-        if (raiders[RaidLocation.RAIDER_INTERESTED] > 0) interested += raiders[RaidLocation.RAIDER_INTERESTED];
-        if (raiders[RaidLocation.RAIDER_GOING] > 0) going += raiders[RaidLocation.RAIDER_GOING];
-        if (raiders[RaidLocation.RAIDER_THERE_SOON] > 0) thereSoon += raiders[RaidLocation.RAIDER_THERE_SOON];
-        if (raiders[RaidLocation.RAIDER_READY] > 0) ready += raiders[RaidLocation.RAIDER_READY];
+        if (raiders[RaidLocation.RAIDER_INTERESTED] > 0) interested += " (" + raiders[RaidLocation.RAIDER_INTERESTED] + ")";
+        if (raiders[RaidLocation.RAIDER_GOING] > 0) going += " (" + raiders[RaidLocation.RAIDER_GOING] + ")";
+        if (raiders[RaidLocation.RAIDER_THERE_SOON] > 0) thereSoon += " (" + raiders[RaidLocation.RAIDER_THERE_SOON] + ")";
+        if (raiders[RaidLocation.RAIDER_READY] > 0) ready += " (" + raiders[RaidLocation.RAIDER_READY] + ")";
 
         ((RadioButton)getDialog().findViewById(R.id.radioButton)).setText(interested);
         ((RadioButton)getDialog().findViewById(R.id.radioButton2)).setText(going);

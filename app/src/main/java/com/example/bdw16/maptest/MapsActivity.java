@@ -35,6 +35,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Networker.registerMapsActivity(this);
+
+        //new ChatFragment().show(getSupportFragmentManager(), "chat");
     }
 
 
@@ -52,9 +54,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
+        LatLng sydney = new LatLng(-37.7905152, 175.3227264);
         //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
         try {
             mMap.setMyLocationEnabled(true);
@@ -103,24 +105,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread poll = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Networker.requestRaidUpdate();
-                        Networker.requestRaidLocation();
-                        RaidLocation location = null;
-                        try {
-                            location = (RaidLocation) activity.currentMarker.getTag();
-                        }
-                        catch (Exception e) {}
-                        if (location == null) Networker.requestMessage(location);
+                while(true) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                });
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Networker.requestRaidLocation();
+                            Networker.requestRaidUpdate();
+                            Networker.requestRaiderUpdate();
+                            RaidLocation location = null;
+                            try {
+                                location = (RaidLocation) activity.currentMarker.getTag();
+                            }
+                            catch (Exception e) {}
+                            if (location != null) {
+                                Networker.requestMessage(location);
+                            }
+                        }
+                    });
+                }
+
             }
         });
         poll.start();

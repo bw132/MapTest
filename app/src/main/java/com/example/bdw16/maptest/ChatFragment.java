@@ -30,13 +30,57 @@ public class ChatFragment extends DialogFragment {
 
         builder.setTitle("Chat");
 
-        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("DONE", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
             }
         });
 
         return builder.create();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        instance = this;
+
+        getDialog().findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText edit = getDialog().findViewById(R.id.editText3);
+                String text = edit.getText().toString().replace('\n', ' ');
+                edit.setText("");
+                Networker.sendMessage(getRaidLocation(), text);
+
+                Networker.requestMessage(getRaidLocation());
+            }
+        });
+
+        getDialog().findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditText edit = getDialog().findViewById(R.id.editText5);
+                String text = edit.getText().toString().replace('\n', ' ');
+                edit.setText("");
+                Networker.sendUsername(text);
+                Networker.username = text;
+                /*String text="";
+                for (int i=0;i<20;i++) {
+                    for (int n=0;n<i*4;n++) {
+                        text+=".";
+                    }
+                    text+='\n';
+                }*/
+                //((TextView)getDialog().findViewById(R.id.textViewChat)).setText(text);
+
+
+            }
+        });
+
+        Networker.requestMessage(getRaidLocation());
+
     }
 
     @Override
@@ -57,11 +101,11 @@ public class ChatFragment extends DialogFragment {
         for (Message m : getRaidLocation().getMessages()) {
             text += m.username + ": " + m.text + "\n\n";
         }
-        ((EditText)getDialog().findViewById(R.id.textViewChat)).setText(text);
+        ((TextView)getDialog().findViewById(R.id.textViewChat)).setText(text);
     }
 
     public static void updateInstance() {
-        if (instance.isVisible()) {
+        if (instance != null && instance.getActivity() != null && instance.getActivity().getSupportFragmentManager().findFragmentByTag("chat") != null) {
             instance.update();
         }
     }

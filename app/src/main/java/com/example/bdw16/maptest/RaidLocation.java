@@ -13,7 +13,7 @@ public class RaidLocation {
     public static final int STATE_MASK_RAID = 0x10;
 
     public static final int STATE_INITIAL = 0x0;
-    public static final int STATE_READY = 0x1;
+    public static final int STATE_READY = 0x0;
     public static final int STATE_PREPARED = 0x11;
     public static final int STATE_ACTIVE = 0x12;
     public static final int STATE_FINISHED = 0x13;
@@ -55,6 +55,7 @@ public class RaidLocation {
                 .title(title)
                 .position(position));
         marker.setTag(this);
+        setState(state);
         return marker;
     }
 
@@ -77,13 +78,16 @@ public class RaidLocation {
                 setMarkerColor(BitmapDescriptorFactory.HUE_GREEN);
                 break;
             case STATE_PREPARED:
-                setMarkerColor(BitmapDescriptorFactory.HUE_GREEN);
+                setMarkerColor(BitmapDescriptorFactory.HUE_ORANGE);
                 break;
             case STATE_ACTIVE:
                 setMarkerColor(BitmapDescriptorFactory.HUE_RED);
                 break;
             case STATE_FINISHED:
                 setMarkerColor(BitmapDescriptorFactory.HUE_VIOLET);
+                break;
+            default:
+                setMarkerColor(BitmapDescriptorFactory.HUE_GREEN);
                 break;
         }
         isRaid = (state & STATE_MASK_RAID) != 0;
